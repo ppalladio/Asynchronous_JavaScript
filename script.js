@@ -89,9 +89,49 @@ const getCountryData = function (country) {
             renderError(`Something went wromg ${err.message}, try again later`);
         })
         .finally(() => {
-            countriesContainer.style.opacity = 1; //' it will happen no matter what, and will only happen when catch returns a promise
+            countriesContainer.style.opacity = 1; //' it will happen no matter what, and will only happen when catch(previous)  returns a promise
         });
 };
 btn.addEventListener('click', () => {
     getCountryData('nepal');
 });
+
+//> event loop
+
+console.log('Start'); //1st
+setTimeout(() => {
+    return console.log('0 sec timer'), 0;
+}); //4th
+Promise.resolve('resolve promise1').then((res) => {
+    console.log(res);
+}); // microstack 3rd
+console.log('test end'); //2nd
+
+//> build a simple promise
+const lotteryPromise = new Promise(function (resolve, reject) {
+    setTimeout(() => {
+        if (Math.random() >= 0.5) {
+            resolve('won'); //. fullfilled state
+        } else {
+            reject(new Error('didnt win')); //. rejected state
+        }
+    }, 2000);
+});
+
+lotteryPromise.then((res) => console.log(res)).catch((err) => console.log(err));
+
+//> promisifying set timeout
+const wait = (seconds) => {
+    return new Promise(function (resolve, _reject) {
+        setTimeout(resolve, seconds * 1000);
+    });
+};
+
+wait(2).then(() => {
+    // create a promise waits for 2 seconds then resolves
+    console.log('waited two second'); // can be any code
+    return wait(1);
+});
+
+Promise.resolve('immediate resolve').then((el) => console.log(el));
+Promise.reject(new Error('immediate reject')).catch((el) => console.error(el));
