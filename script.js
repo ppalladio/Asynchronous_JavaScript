@@ -135,3 +135,19 @@ wait(2).then(() => {
 
 Promise.resolve('immediate resolve').then((el) => console.log(el));
 Promise.reject(new Error('immediate reject')).catch((el) => console.error(el));
+
+//> promisify getolocation
+
+const getLocation = () => {
+    return new Promise((resolve, reject) => {
+        // navigator.geolocation.getCurrentPosition(
+        //     (position) => resolve(position),
+        //     (err) => reject(err),
+        // );
+        navigator.geolocation.getCurrentPosition(resolve, reject); //? if the parameter is the only parameter pass in to the resolve/reject funtion
+    });
+};
+
+getLocation().then((pos) => console.log(pos));
+
+
