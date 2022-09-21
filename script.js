@@ -6,7 +6,10 @@ const countriesContainer = document.querySelector('.countries');
 ///////////////////////////////////////
 
 //~* old way of writing AJAX call
-
+const renderError = (msg) => {
+    countriesContainer.insertAdjacentText('beforeend', msg);
+    countriesContainer.style.opacity = 1;
+};
 const renderCountry = function (data) {
     const html = `
     <article class="country">
@@ -65,6 +68,7 @@ const getCountryData = function (country) {
     fetch(`https://restcountries.com/v2/name/${country}`)
         .then((res, req) => {
             return res.json();
+            // (err) => alert(err); // catching error with prompt window
         })
         .then((data) => {
             renderCountry(data[0]);
@@ -79,6 +83,15 @@ const getCountryData = function (country) {
                 .then((data) => {
                     renderCountry(data);
                 });
+        })
+        .catch((err) => {
+            console.error(`${err}`);
+            renderError(`Something went wromg ${err.message}, try again later`);
+        })
+        .finally(() => {
+            countriesContainer.style.opacity = 1; //' it will happen no matter what, and will only happen when catch returns a promise
         });
 };
-// getCountryData('nepal')
+btn.addEventListener('click', () => {
+    getCountryData('nepal');
+});
