@@ -33,30 +33,52 @@ const getCountryCards = function (country) {
 
     req.addEventListener('load', function () {
         const [data] = JSON.parse(this.responseText);
-        console.log(data);
+        // console.log(data);
 
         //. renderCountry 1
         renderCountry(data);
 
         //get neighbour country
 
-        const neighbour = data.borders;
-        console.log(neighbour);
-        if (!neighbour) return;
-        neighbour.forEach((data) => {
-            let req = new XMLHttpRequest();
-            req.open('GET', `https://restcountries.com/v2/alpha/${data}`);
-            req.send();
+        // const neighbour = data.borders;
+        // // console.log(neighbour);
+        // if (!neighbour) return;
+        // neighbour.forEach((data) => {
+        //     let req = new XMLHttpRequest();
+        //     req.open('GET', `https://restcountries.com/v2/alpha/${data}`);
+        //     req.send();
 
-            req.addEventListener('load', function () {
-                const data = JSON.parse(this.responseText);
-                console.log(data);
-                renderCountry(data);
-            });
-        });
+        //     req.addEventListener('load', function () {
+        //         const data = JSON.parse(this.responseText);
+        //         console.log(data);
+        //         renderCountry(data);
+        //     });
+        // });
     });
 };
 
-getCountryCards('germany');
+// getCountryCards('germany');
 
 //~* modern way of AJAX
+
+const getCountryData = function (country) {
+    fetch(`https://restcountries.com/v2/name/${country}`)
+        .then((res, req) => {
+            return res.json();
+        })
+        .then((data) => {
+            renderCountry(data[0]);
+            const neighbour = data[0].borders?.[0];
+            if (!neighbour) return;
+
+            //' get the first neighbour country
+            return fetch(`https://restcountries.com/v2/alpha/${neighbour}`) //. this returns a new promise
+                .then((res, req) => {
+                    return res.json();
+                })
+                .then((data) => {
+                    renderCountry(data);
+                });
+        });
+};
+// getCountryData('nepal')

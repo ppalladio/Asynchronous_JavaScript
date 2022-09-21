@@ -30,8 +30,8 @@ body {
 
 .countries {
     margin-bottom: 8rem;
-    
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
     font-size: 2rem;
     opacity: 0;
     padding: 0 10px;
