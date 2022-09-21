@@ -71,6 +71,7 @@ const getCountryData = function (country) {
             // (err) => alert(err); // catching error with prompt window
         })
         .then((data) => {
+            console.log(data);
             renderCountry(data[0]);
             const neighbour = data[0].borders?.[0];
             if (!neighbour) return;
@@ -92,9 +93,9 @@ const getCountryData = function (country) {
             countriesContainer.style.opacity = 1; //' it will happen no matter what, and will only happen when catch(previous)  returns a promise
         });
 };
-btn.addEventListener('click', () => {
-    getCountryData('nepal');
-});
+// btn.addEventListener('click', () => {
+//     getCountryData('spain');
+// });
 
 //> event loop
 
@@ -148,6 +149,26 @@ const getLocation = () => {
     });
 };
 
-getLocation().then((pos) => console.log(pos));
-
-
+const whereAmI = function () {
+    getLocation()
+      .then(pos => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+    return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+  })
+      .then(res => {
+        if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        console.log(data);
+        console.log(`You are in ${data.city}, ${data.country}`);
+        return fetch(`https://restcountries.com/v2/name/${data.country}`);
+      })
+      .then(res => {
+        if (!res.ok) throw new Error(`Country not found (${res.status})`);
+        return res.json();
+      })
+      .then(data => renderCountry(data[0]))
+      .catch(err => console.error(`${err.message} 💥`));
+  };
+  btn.addEventListener('click', whereAmI);
