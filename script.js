@@ -232,3 +232,43 @@ const get3Countries = async function (c1, c2, c3) {
         console.error(err.message);
     }
 };
+
+//>  racec. allSettled and any
+
+(async function () {
+    const res = await Promise.race([
+        getJSON(`https://restcountries.com/v2/name/china`),
+        getJSON(`https://restcountries.com/v2/name/spain`),
+        getJSON(`https://restcountries.com/v2/name/finland`),
+    ]);
+    console.log(res[0].name);
+    //' race returns only one results and shortcircuits whenver one promise gets [settled], no matter fullfilled or rejected
+})();
+
+//**use case of race, if the web is loading too slow */
+const timeout = function (s) {
+    return new Promise((_resolve, reject) => {
+        setTimeout(() => {
+            reject(new Error(`Request took too long`));
+        }, sec * 1000);
+    });
+};
+
+Promise.race([
+    getJSON(`https://restcountries.com/v2/name/finland`),
+    timeout(0.2),
+])
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err));
+
+
+
+//** Promise.any will just return the first fulfilled promise and ignored rejected promises */
+Promise.any([
+    Promise.reject('err'),
+    Promise.resolve('success'),
+
+    Promise.resolve('second promise'),
+])
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err));
