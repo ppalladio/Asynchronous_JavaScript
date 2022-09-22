@@ -151,24 +151,57 @@ const getLocation = () => {
 
 const whereAmI = function () {
     getLocation()
-      .then(pos => {
-        const { latitude: lat, longitude: lng } = pos.coords;
-    return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
-  })
-      .then(res => {
-        if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
-        return res.json();
-      })
-      .then(data => {
+        .then((pos) => {
+            const { latitude: lat, longitude: lng } = pos.coords;
+            return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+        })
+        .then((res) => {
+            if (!res.ok)
+                throw new Error(`Problem with geocoding ${res.status}`);
+            return res.json();
+        })
+        .then((data) => {
+            console.log(data);
+            console.log(`You are in ${data.city}, ${data.country}`);
+            return fetch(`https://restcountries.com/v2/name/${data.country}`);
+        })
+        .then((res) => {
+            if (!res.ok) throw new Error(`Country not found (${res.status})`);
+            return res.json();
+        })
+        .then((data) => renderCountry(data[0]))
+        .catch((err) => console.error(`${err.message} 💥`));
+};
+btn.addEventListener('click', whereAmI);
+
+//~* async function
+//> rebuild geolocating with async function
+
+const whereAmI2 = async function () {
+    try {
+        const location = await getLocation();
+        const { latitude: lat, longitude: lng } = location.coords;
+
+        // reverse geolocation coordinates
+        const resGeo = await fetch(
+            `https://geocode.xyz/${lat},${lng}?geoit=json`,
+        );
+        if (!resGeo.ok) throw new Error(`Geolocation not found`);
+        const dataGeo = await resGeo.json();
+
+        const res = await fetch(
+            `https://restcountries.com/v2/name/${dataGeo.country}`,
+        ); // await is just the syntex suger of .then, consuming promises
+        if (!res.ok) throw new Error(`Country not found`);
+        //. the above declaration is equivalent to fetch().then(res => console.log(res))
+
+        const data = await res.json();
         console.log(data);
-        console.log(`You are in ${data.city}, ${data.country}`);
-        return fetch(`https://restcountries.com/v2/name/${data.country}`);
-      })
-      .then(res => {
-        if (!res.ok) throw new Error(`Country not found (${res.status})`);
-        return res.json();
-      })
-      .then(data => renderCountry(data[0]))
-      .catch(err => console.error(`${err.message} 💥`));
-  };
-  btn.addEventListener('click', whereAmI);
+        renderCountry(data[0]);
+    } catch (err) {
+        console.log(`${err.message} 🛸`);
+        renderError(`🎶 ${err.message}`);
+    }
+};
+// immediate display current location
+whereAmI2();
